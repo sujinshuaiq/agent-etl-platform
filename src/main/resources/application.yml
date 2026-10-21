@@ -1,0 +1,78 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: agent-etl-platform
+  datasource:
+    url: jdbc:h2:file:./data/dataforge;AUTO_SERVER=TRUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Shanghai
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    generator:
+      write-bigdecimal-as-plain: true
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          max-age: 1h
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    root: info
+    com.dataforge.etl: info
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%15.15t] %-40.40logger{39} : %m%n"
+
+# 平台自定义配置
+dataforge:
+  engine:
+    core-pool-size: 8
+    max-pool-size: 16
+    queue-capacity: 200
+    node-timeout-seconds: 300
+  heartbeat:
+    interval-seconds: 10
+    offline-threshold-seconds: 45
+  seed:
+    enabled: true          # 首次启动时生成演示数据(库为空才执行)
+    history-days: 30       # 模拟多少天的历史运行记录
+  simulation:
+    min-node-duration-ms: 300
+    max-node-duration-ms: 3000
+  llm:
+    enabled: true
+    # OpenAI 兼容协议;默认 Kimi(Moonshot)。也可用 DeepSeek:https://api.deepseek.com/v1
+    base-url: https://api.moonshot.cn/v1
+    # 建议用环境变量注入:DATAFORGE_LLM_API_KEY;不配置时自动进入内置模拟模式(功能仍可演示)
+    api-key: ${DATAFORGE_LLM_API_KEY:}
+    model: moonshot-v1-8k
+    timeout-seconds: 60
+    max-tokens: 2048
